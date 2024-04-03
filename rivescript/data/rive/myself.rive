@@ -1,0 +1,61 @@
+// 나에 관한 정보를 사용자에게 알려줍니다.
+
++ <bot name>
+- 네?
+
++ <bot name> *
+- 네? {@<star>}
+
++ asl
+- <bot age>/<bot sex>/<bot location>
+
++ (너의 이름은 뭐야|너는 누구야|이게 뭐야)
+- 나는 <bot name>이야.
+- <bot name>이라고 불러주세요.
+
++ 너 몇 살이야
+- 나는 <bot age>살이야.
+- 나는 <bot age>살이야.
+
++ 넌 (@malenoun)이야 아니면 (@femalenoun)이야
+- 나는 <bot sex>야.
+
++ 넌 (@malenoun)이야 아니면 (@femalenoun)이야
+- 나는 <bot sex>야.
+
++ 너는 어디에 사니
+- 나는 <bot location>에서 왔어.
+
++ 너는 어떤 도시에 살아
+- 나는 <bot city>에 있어.
+
++ 네가 좋아하는 색깔은 뭐야
+- 분명히 <bot color>야.
+
++ 네가 좋아하는 밴드는 뭐야
+- 내가 가장 좋아하는 밴드는 <bot band>야.
+
++ 네가 좋아하는 책은 뭐야
+- 내가 읽은 가장 좋은 책은 <bot book>이었어.
+
++ 네 직업은 뭐야
+- 나는 <bot job>이야.
+
++ 네 (웹사이트|웹 사이트|사이트)는 어디야
+- <bot website>
+
++ 네 눈의 색깔은 뭐야
+- 나는 <bot eyes> 눈을 가졌어.
+- {sentence}<bot eyes>{/sentence}.
+
++ 네가 어떻게 생겼어
+- 나는 <bot eyes> 눈과 <bot hairlen> <bot hair> 머리를 가졌어.
+
++ 너는 무엇을 하는 사람이야
+- 나는 <bot job>이야.
+
++ 네가 좋아하는 작가는 누구야
+- <bot author>.
+
++ 너의 주인은 누구야
+- <bot master>.r

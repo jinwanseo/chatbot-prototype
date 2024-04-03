@@ -1,0 +1,144 @@
+doctype html
+html
+    head
+        title ChatBOT 설정
+        script(src="https://cdn.tailwindcss.com")
+    body.flex.flex-col.w-screen.h-screen.items-center.bg-slate-900
+        section.shadow.shadow-lg.p-6.flex.flex-col.gap-2.justify-center.h-screen.w-full
+            h1.text-slate-300.text-center 대화 스크립트 추가 및 삭제 🎉
+            div.flex.flex-row.gap-2.items-center.justify-start
+                a.a.bg-sky-900.text-sky-50.text-xs.px-2.rounded(href=`/chat?chatId=1`) 대화 하기
+                a.bg-teal-900.text-teal-50.text-xs.px-2.rounded(href=`/custom`) 대화 설정
+                a.a.bg-amber-900.text-sky-50.text-xs.px-2.rounded.cursor-pointer(href=`/topic`) 주제 설정
+                span.text-slate-300.text-xs.ml-auto 동적으로 스크립트를 추가하거나 삭제할 수 있어요
+            ul#messages.h-full.w-full.flex.flex-col.gap-5.bg-slate-800.text-sm.rounded.p-5.overflow-y-auto
+                each item, index in result
+                    li.bg-slate-700.rounded.p-2.mr-auto.text-slate-50.w-full(id=`message-${index}`)
+                        div.flex.flex-row.w-full.gap-5.text-xs.justify-between.px-3
+                            div.flex.flex-col.gap-2.w-14
+                                span 질문
+                                span 답변
+                            div.flex.flex-row.w-full.justify-between
+                                div.flex.flex-col.gap-2
+                                    span.w-full= item.question
+                                    span.w-full= item.answer
+                                div.flex.flex-row.gap-1.items-center
+                                    button.bg-red-800.text-red-50.p-2.rounded(onclick=`deleteMessage('${index}','${item.question}', '${item.answer}')`) 삭제
+            form(action="" onsubmit="addMessage(event)" class="flex flex-row gap-2 w-full")
+                div.flex.flex-col.w-full.text-xs.gap-1
+                    div.flex.flex-row.gap-2.items-center.justify-center
+                        span.text-slate-300.text-center.w-14 질문
+                        input#question.bg-slate-800.border.border-slate-400.rounded.rounded-lg.w-full.text-slate-300.px-3.p-2(placeholder="추가할 질문 입력해줘요", type="text", name="question", autocomplete="off")
+                    div.flex.flex-row.gap-2.items-center.justify-center
+                        span.text-slate-300.text-center.w-14 답변
+                        input#answer.bg-slate-800.border.border-slate-400.rounded.rounded-lg.w-full.text-slate-300.px-3.p-2(placeholder="추가할 답변을 입력해줘요", type="text", name="answer", autocomplete="off")
+                    div.flex.flex-row.gap-2.items-center.justify-center.w-full
+                        div.flex.flex-row.gap-2.items-center.justify-center.w-full
+                            span#topics-label.text-slate-300.text-center.w-14 주제 이동
+                            select#topics.bg-slate-800.border.border-slate-400.rounded.rounded-lg.w-full.text-slate-300.px-3.p-2(name="group", autocomplete="off")
+                                option(value="") 선택 안함
+                                    each topic in topics
+                                        option(value=topic.title)= topic.title
+                        div#question-area.flex.flex-row.gap-2.items-center.justify-center
+
+                button.bg-sky-900.text-sky-50.p-3.text-xs.rounded.w-24(type="submit") 저장
+        script.
+            const topics = !{JSON.stringify(topics)};
+            const baseURL = window.location.origin;
+            const questionAreaElement = document.getElementById("question-area");
+
+            // 주제 이동 선택시 질문 이동 컴포넌트  동적 생성
+            const onLinkTopicSelect = (event) => {
+                // 1. 토픽 선택 여부 확인
+                if (!event.target.value) {
+                    questionAreaElement.innerHTML = "";
+                    questionAreaElement.classList.remove("w-full");
+                    document.getElementById("topics-label").classList.remove("w-14");
+                    return;
+                }
+
+                const selectedTopic = topics.find(t => t.title === event.target.value)
+                if (!selectedTopic) {
+                    alert("선택한 주제가 존재하지 않습니다.");
+                    return;
+                }
+
+                // 2. 토픽 선택 변경시 질문 이동 정보 리셋
+                questionAreaElement.innerHTML = `
+                                <span class="text-slate-300 text-center w-16">질문 이동</span>
+                                <select id="topic-question" class="bg-slate-800 border border-slate-400 rounded rounded-lg w-full text-slate-300 px-3 p-2" autocomplete="off">
+                                    ${selectedTopic.questions.map(q => `<option value="${q}">${q}</option>`).join("")}
+                                </select>
+                            `;
+                document.getElementById("topics-label").classList.add("w-16")
+
+                questionAreaElement.classList.add("w-full");
+            }
+
+            // 이벤트 등록 (주제 이동 선택시)
+            document.getElementById("topics").addEventListener("change", onLinkTopicSelect);
+
+            // 메시지 추가
+            const addMessage = async (event) => {
+                const questionElement = document.getElementById("question");
+                const answerElement = document.getElementById("answer");
+                const topicsElement = document.getElementById("topics");
+                const topicQuestionElement = document.getElementById("topic-question");
+
+                const data = {};
+
+
+                if (!questionElement.value || !answerElement.value) {
+                    alert("질문과 답변을 모두 입력해주세요!");
+                    return;
+                }
+
+                data.question = questionElement.value;
+                data.answer = answerElement.value;
+
+                if (topicsElement.value && !topicQuestionElement.value) {
+                    alert("질문 이동시 자동으로 출력될 첫 질문을 선택해주세요");
+                    return;
+                }
+
+                if (topicsElement.value && topicQuestionElement.value) {
+                    data.topic = topicsElement.value;
+                    data.topicQuestion = topicQuestionElement.value;
+                }
+
+
+                const response = await fetch(`${baseURL}/custom`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const res = await response.json();
+                res.error && alert(res.error);
+            }
+
+
+            // 2. 메시지 삭제
+            const deleteMessage = async (index, question, answer) => {
+                const response = await fetch(`${baseURL}/custom`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        answer: answer
+                    })
+                });
+
+                const {result, error} = await response.json();
+                if (error) {
+                    alert(error);
+                    return;
+                }
+
+                const messageElement = document.getElementById(`message-${index}`);
+                messageElement.remove();
+            }

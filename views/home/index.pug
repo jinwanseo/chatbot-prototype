@@ -1,0 +1,20 @@
+html
+    head
+        title= `${title} 🤖`
+        script(src="https://cdn.tailwindcss.com")
+
+    body.text-slate-300.w-screen.h-screen
+        div.w-screen.h-screen.bg-slate-900
+        section.flex.flex-col.w-full.h-full.justify-center.items-center.z-10.absolute.top-0.left-0
+            div.flex.flex-col.p-10.bg-slate-800.rounded.shadow-lg.gap-5
+                h1.text-4xl.text-center.text-slate-300
+                    | 챗봇 서비스 🤖
+                p.text-center.text-slate-300
+                    | 챗봇 서비스에 오신 것을 환영합니다
+                div.flex.flex-row.justify-center.gap-5
+                    a.bg-sky-900.text-sky-50.text-xs.px-2.rounded(href="/chat?chatId=1")
+                        | 챗봇 DEMO
+                    a.bg-sky-900.text-sky-50.text-xs.px-2.rounded(href="/custom")
+                        | 챗봇 Setting
+
+

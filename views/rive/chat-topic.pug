@@ -1,0 +1,94 @@
+doctype html
+html
+    head
+        title= title
+        script(src="https://cdn.tailwindcss.com")
+    body.flex.flex-col.w-screen.h-screen.items-center.bg-slate-900
+        section.shadow.shadow-lg.p-6.flex.flex-col.gap-2.justify-center.h-screen.w-full
+            h1.text-slate-300.text-center 대화 주제 추가 및 삭제 🎉
+            div.flex.flex-row.gap-2.items-center.justify-start
+                a.bg-sky-900.text-sky-50.text-xs.px-2.rounded(href=`/chat?chatId=1`) 대화 하기
+                a.bg-teal-900.text-sky-50.text-xs.px-2.rounded(href=`/custom`) 대화 설정
+                a.a.bg-amber-900.text-sky-50.text-xs.px-2.rounded.cursor-pointer(href=`/topic`) 주제 설정
+                span.text-slate-300.text-xs.ml-auto 대화 주제를 설정하면 더 정확한 답변을 설정할 수 있어요
+            ul#messages.h-full.w-full.flex.flex-col.gap-5.bg-slate-800.text-sm.rounded.p-5.overflow-y-auto
+                each topic, index in topics
+                    li.bg-slate-700.rounded.p-2.mr-auto.text-teal-50.w-full(id=`topic-${index}`)
+                        div.flex.flex-row.w-full.gap-5.text-xs.justify-between.px-3
+                            div.flex.flex-col.gap-2
+                                div.flex.flex-row.items.center
+                                    span.w-14.my-auto 주제 이름
+                                    span= topic.title
+                                if topic.group.length > 0
+                                    div.flex.flex-row.items.center
+                                        span.w-14.my-auto 연관 주제
+                                        div.flex.flex-row.gap-2
+                                            each group in topic.group
+                                                span= group
+                                div.flex.flex-row.items.center
+                                    span.w-14.my-auto 문답 개수
+                                    span= topic.count
+                            div.flex.flex-row.gap-1.items-center
+                                button.bg-amber-800.text-amber-50.p-2.rounded(onclick=`setTopic('${topic.title}')`) 설정
+                                button.bg-red-800.text-red-50.p-2.rounded(onclick=`deleteTopic('${index}','${topic.title}')`) 삭제
+            form(action="" onsubmit="addTopic(event)" class="flex flex-row gap-2 w-full")
+                div.flex.flex-col.w-full.text-xs.gap-1
+                    div.flex.flex-row.gap-2.items-center.justify-center
+                        span.text-slate-300.text-center.w-10 주제
+                        input#title.bg-slate-800.border.border-slate-400.rounded.rounded-lg.w-full.text-slate-300.px-3.p-2(placeholder="추가할 주제 이름을 입력해줘요", type="text", name="topic", autocomplete="off")
+                    div.flex.flex-row.gap-2.items-center.justify-center
+                        span.text-slate-300.text-center.w-10 연관
+                        select#group.bg-slate-800.border.border-slate-400.rounded.rounded-lg.w-full.text-slate-300.px-3.p-2(name="group", autocomplete="off")
+                            option(value="") 선택 안함
+                            each topic in topics
+                                option(value=topic.title)= topic.title
+
+                button.bg-sky-900.text-sky-50.p-3.text-xs.rounded.w-24(type="submit") 저장
+        script.
+            const baseURL = window.location.origin;
+
+            const setTopic = (title) => {
+                window.location.href = `${baseURL}/topic/custom?title=${title}`;
+            }
+
+            const deleteTopic = async (index, title) => {
+                const response = await fetch(`${baseURL}/topic/${title}`, {
+                    method: "DELETE"
+                });
+
+                const {result, error} = await response.json();
+
+                if (error) {
+                    alert(error);
+                    return;
+                }
+
+
+                document.getElementById(`topic-${index}`).remove();
+                window.location.reload();
+            }
+
+            const addTopic = async () => {
+                const title = document.getElementById('title').value;
+                const group = document.getElementById('group').value;
+                if (title === "") {
+                    alert("필수 항목 모두 입력 해줘요");
+                    return;
+                }
+
+                fetch(`${baseURL}/topic`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        title,
+                        group: group ? [group] : []
+                    })
+                }).then(d => d.json())
+                    .then(res => {
+                        if (res.error) alert(res.error)
+                        else window.location.reload();
+                    })
+
+            }

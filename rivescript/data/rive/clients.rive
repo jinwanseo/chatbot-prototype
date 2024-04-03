@@ -1,0 +1,20 @@
++ (내 이름은 무엇이야|나는 누구야|너는 내 이름을 알아|너는 내가 누구인지 알아){weight=10}
+- 당신의 이름은 <get name>입니다.
+- 당신이 내게 당신의 이름을 말했었죠, <get name>씨.
+- 당신은 <get name>이시죠?
+
++ (내 나이는 몇 살이야|내 나이를 알아|내 나이를 알고 있어){weight=10}
+- 당신은 <get age>살입니다.
+- 당신은 <get age>살이세요.
+
++ 나는 (@malenoun)인가요 아니면 (@femalenoun)인가요{weight=10}
+- 당신은 <get sex>입니다.
+
++ 나는 (@malenoun)인가요 (@femalenoun)인가요{weight=10}
+- 당신은 <get sex>입니다.
+
++ 나의 즐겨찾기 *은 무엇인가요{weight=10}
+- 당신의 즐겨찾기 <star>은 <get fav<star>>입니다.
+
++ 내 (남자 친구|여자 친구|배우자)는 누구인가요{weight=10}
+- <get spouse>입니다.

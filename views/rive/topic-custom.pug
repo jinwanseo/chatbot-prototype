@@ -1,0 +1,123 @@
+doctype
+html
+    head
+        title= title
+        script(src="https://cdn.tailwindcss.com")
+
+    body.flex.flex-col.w-screen.h-screen.items-center.bg-slate-900
+        section.shadow.shadow-lg.p-6.flex.flex-col.items-center.justify-center.h-screen.w-full.gap-2
+            h1.text-slate-300 주제 속 대화 설정 🎉
+            div.flex.flex-row.justify-start.w-full.gap-2
+                a.a.bg-sky-900.text-sky-50.text-xs.px-2.rounded(href=`/chat?chatId=1`) 대화 하기
+                a.bg-teal-900.text-teal-50.text-xs.px-2.rounded(href=`/custom`) 대화 설정
+                a.bg-amber-900.text-amber-50.text-xs.px-2.rounded(href=`/topic`) 주제 설정
+                span.text-slate-300.text-xs.ml-auto= "[ " + topic.title + " ] 주제의 대화 설정 화면 입니다."
+            ul#messages.h-full.w-full.flex.flex-col.gap-5.bg-slate-800.text-sm.rounded.p-5.overflow-y-auto
+                each item, index in topic.qna
+                    li.bg-slate-700.rounded.p-2.mr-auto.text-teal-50.w-full(id=`topic-${index}`)
+                        div.flex.flex-row.w-full.gap-5.text-xs.justify-between.px-3
+                            div.flex.flex-col.gap-2
+                                div.flex.flex-row.items.center
+                                    span.w-14.my-auto 질문
+                                    span= item.question
+                                div.flex.flex-row.items.center
+                                    span.w-14.my-auto 답변
+                                    span= item.answer
+                            div.flex.flex-row.gap-1.items-center
+                                button.bg-red-800.text-red-50.p-2.rounded(onclick=`deleteMessage('${index}', '${item.question}', '${item.answer}')`) 삭제
+
+            div.flex.flex-row.gap-2.w-full
+                div.flex.flex-col.w-full.text-xs.gap-1
+                    div.flex.flex-row.gap-2.items-center.justify-center
+                        span.text-slate-300.text-center Q
+                        input#question.bg-slate-800.border.border-slate-400.rounded.rounded-lg.w-full.text-slate-300.px-3.p-2(placeholder="추가할 질문 입력해줘요", type="text", name="question", autocomplete="off")
+                    div.flex.flex-row.gap-2.items-center.justify-center
+                        span.text-slate-300.text-center A
+                        input#answer.bg-slate-800.border.border-slate-400.rounded.rounded-lg.w-full.text-slate-300.px-3.p-2(placeholder="추가할 답변을 입력해줘요", type="text", name="answer", autocomplete="off")
+
+                button.bg-sky-900.text-sky-50.p-3.text-xs.rounded.w-24(onclick=`addMessage()`) 저장
+
+            script.
+                const topic = !{JSON.stringify(topic)};
+                const baseURL = window.location.origin;
+                // 1. 메시지
+                const addMessage = async () => {
+                    const question = document.getElementById("question").value;
+                    const answer = document.getElementById("answer").value;
+                    const messagesElement = document.getElementById("messages");
+
+
+                    if (!question || !answer) {
+                        alert("질문과 답변을 모두 입력해주세요");
+                        return;
+                    }
+
+                    topic.qna.push({question, answer});
+
+                    const response = await fetch(`${baseURL}/topic/custom`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(topic)
+                    });
+
+                    const {result, error} = await response.json();
+                    if (error) {
+                        alert(error);
+                        return;
+                    }
+
+                    messagesElement.innerHTML += `
+                        <li class="bg-slate-700 rounded p-2 mr-auto text-teal-50 w-full" id="topic-${topic.length}">
+                            <div class="flex flex-row w-full gap-5 text-xs justify-between px-3">
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex flex-row items center">
+                                            <span class="w-14 my-auto">질문</span>
+                                            <span>${question}</span>
+                                        </div>
+                                        <div class="flex flex-row items center">
+                                            <span class="w-14 my-auto">답변</span>
+                                            <span>${answer}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-row gap-1 items-center">
+                                        <button class="bg-red-800 text-red-50 p-2 rounded" onclick="deleteMessage('${topic.length}', '${topic.question}', '${topic.answer}')">삭제</button>
+                                    </div>
+                            </div>
+                        </li>
+                    `
+
+                    window.location.reload();
+                }
+
+
+                // 2. 메시지 삭제
+                const deleteMessage = async (index, question, answer) => {
+                    if (!question || !answer) {
+                        alert("삭제가 불가능 합니다. 브라우저를 다시 로드해주세요");
+                        return;
+                    }
+
+                    const response = await fetch(`${baseURL}/topic/custom`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            title: topic.title,
+                            question: question,
+                            answer: answer
+                        })
+                    });
+
+                    const {result, error} = await response.json();
+                    if (error) {
+                        alert(error);
+                        return;
+                    }
+
+                    const messageElement = document.getElementById(`topic-${index}`);
+                    messageElement.remove();
+
+                }
